@@ -4,6 +4,7 @@ import cv2
 import os
 import json
 from datetime import datetime
+import logging
 
 class FruitDetector:
     def __init__(self, num_classes, yolo_model='yolov8n.pt', train_data_path=None):
@@ -13,6 +14,9 @@ class FruitDetector:
         self.num_classes = num_classes
         self.model_save_dir = "trained_models"
         os.makedirs(self.model_save_dir, exist_ok=True)
+
+        # Tắt logging của YOLO để không in thông tin thừa
+        logging.getLogger('ultralytics').setLevel(logging.ERROR)  # Tắt các thông báo của YOLO
 
     def process_training_folder(self, save_results=True):
         if not self.train_data_path or not os.path.exists(self.train_data_path):
@@ -45,14 +49,19 @@ class FruitDetector:
         
         image_resized = cv2.resize(image, (256, 192))
 
-        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        results = self.yolo(image_rgb)
+        # Chuyển đổi hình ảnh thành RGB
+        image_rgb = cv2.cvtColor(image_resized, cv2.COLOR_BGR2RGB)
+
+        # Sử dụng YOLO để phát hiện đối tượng trong hình ảnh mà không in thông tin thừa
+        results = self.yolo(image_rgb, verbose=False)  # Tắt thông báo
 
         detections = []
         for r in results:
             for box in r.boxes:
                 x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
                 conf = float(box.conf[0])
+
+                # Chỉ lưu lại thông tin cần thiết (bounding box và confidence)
                 detections.append({
                     'box': [x1, y1, x2, y2],
                     'confidence': conf
