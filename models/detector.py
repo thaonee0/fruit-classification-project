@@ -1,44 +1,61 @@
 import torch
 from ultralytics import YOLO
 import cv2
-import torchvision.transforms as transforms
-from .classifier import FruitClassifier
+import os
+import json
+from datetime import datetime
 
 class FruitDetector:
-    def __init__(self, num_classes, yolo_model='yolov8n.pt'):
+    def __init__(self, num_classes, yolo_model='yolov8n.pt', train_data_path=None):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.yolo = YOLO(yolo_model)
-        self.classifier = FruitClassifier(num_classes).to(self.device)
-        self.transform = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                              std=[0.229, 0.224, 0.225])
-        ])
+        self.train_data_path = train_data_path
+        self.num_classes = num_classes
+        self.model_save_dir = "trained_models"
+        os.makedirs(self.model_save_dir, exist_ok=True)
+
+    def process_training_folder(self, save_results=True):
+        if not self.train_data_path or not os.path.exists(self.train_data_path):
+            raise ValueError("Training data path is not provided or does not exist.")
+
+        all_detections = []
+        for root, _, files in os.walk(self.train_data_path):
+            for file in files:
+                if file.lower().endswith(('.png', '.jpg', '.jpeg')):
+                    image_path = os.path.join(root, file)
+                    detections = self.detect_and_classify(image_path)
+                    result = {
+                        'image_path': image_path,
+                        'detections': detections
+                    }
+                    all_detections.append(result)
+
+        if save_results and all_detections:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            results_path = os.path.join(self.model_save_dir, f"detection_results_{timestamp}.json")
+            with open(results_path, 'w') as f:
+                json.dump(all_detections, f, indent=4)
+
+        return all_detections
 
     def detect_and_classify(self, image_path):
         image = cv2.imread(image_path)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        results = self.yolo(image)
+        if image is None:
+            return []
         
+        image_resized = cv2.resize(image, (256, 192))
+
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        results = self.yolo(image_rgb)
+
         detections = []
         for r in results:
-            boxes = r.boxes
-            for box in boxes:
-                x1, y1, x2, y2 = box.xyxy[0]
-                fruit_region = image[int(y1):int(y2), int(x1):int(x2)]
-                
-                if fruit_region.size != 0:
-                    fruit_tensor = self.transform(fruit_region).unsqueeze(0)
-                    fruit_tensor = fruit_tensor.to(self.device)
-                    
-                    with torch.no_grad():
-                        output = self.classifier(fruit_tensor)
-                        pred = torch.argmax(output).item()
-                    
-                    detections.append({
-                        'box': box.xyxy[0].cpu().numpy(),
-                        'class': pred
-                    })
+            for box in r.boxes:
+                x1, y1, x2, y2 = map(int, box.xyxy[0].tolist())
+                conf = float(box.conf[0])
+                detections.append({
+                    'box': [x1, y1, x2, y2],
+                    'confidence': conf
+                })
+
         return detections
