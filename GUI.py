@@ -7,10 +7,11 @@ import cv2
 import numpy as np
 
 class ImageTestDialog:
-    def __init__(self, parent):
+    def __init__(self, parent, detector=None):
         self.dialog = tk.Toplevel(parent)
         self.dialog.title("Test Image")
-        self.dialog.geometry("600x400")
+        self.dialog.geometry("800x600")
+        self.detector = detector
         
         # Center the dialog
         self.dialog.transient(parent)
@@ -30,19 +31,30 @@ class ImageTestDialog:
         self.preview_frame = ttk.Frame(self.dialog, padding="10")
         self.preview_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Canvas for image preview
-        self.canvas = tk.Canvas(self.preview_frame, width=500, height=300)
-        self.canvas.pack(pady=10)
+        # Create two canvases side by side
+        self.canvas_frame = ttk.Frame(self.preview_frame)
+        self.canvas_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Original image canvas
+        self.original_canvas = tk.Canvas(self.canvas_frame, width=380, height=300)
+        self.original_canvas.grid(row=0, column=0, padx=5)
+        ttk.Label(self.canvas_frame, text="Original Image").grid(row=1, column=0)
+        
+        # Detected image canvas
+        self.detected_canvas = tk.Canvas(self.canvas_frame, width=380, height=300)
+        self.detected_canvas.grid(row=0, column=1, padx=5)
+        ttk.Label(self.canvas_frame, text="Detected Result").grid(row=1, column=1)
         
         # Buttons
         button_frame = ttk.Frame(self.dialog, padding="10")
         button_frame.pack(fill=tk.X, padx=10, pady=5)
         
-        ttk.Button(button_frame, text="OK", command=self.ok_clicked).pack(side=tk.RIGHT, padx=5)
-        ttk.Button(button_frame, text="Cancel", command=self.dialog.destroy).pack(side=tk.RIGHT)
+        ttk.Button(button_frame, text="Detect", command=self.process_image).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(button_frame, text="Close", command=self.dialog.destroy).pack(side=tk.RIGHT)
         
         self.result = None
-        self.photo = None
+        self.photo_original = None
+        self.photo_detected = None
 
     def browse_image(self):
         file_path = filedialog.askopenfilename(
@@ -54,32 +66,61 @@ class ImageTestDialog:
 
     def show_preview(self, image_path):
         try:
-            # Clear previous image
-            self.canvas.delete("all")
+            # Clear previous images
+            self.original_canvas.delete("all")
+            self.detected_canvas.delete("all")
             
             # Load and resize image for preview
             image = Image.open(image_path)
             # Calculate resize ratio while maintaining aspect ratio
-            display_size = (500, 300)
+            display_size = (380, 300)
             image.thumbnail(display_size, Image.Resampling.LANCZOS)
             
             # Convert to PhotoImage and keep reference
-            self.photo = ImageTk.PhotoImage(image)
+            self.photo_original = ImageTk.PhotoImage(image)
             
             # Center image in canvas
-            x = (500 - self.photo.width()) // 2
-            y = (300 - self.photo.height()) // 2
-            self.canvas.create_image(x, y, anchor="nw", image=self.photo)
+            x = (380 - self.photo_original.width()) // 2
+            y = (300 - self.photo_original.height()) // 2
+            self.original_canvas.create_image(x, y, anchor="nw", image=self.photo_original)
             
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load image: {str(e)}")
 
-    def ok_clicked(self):
+    def process_image(self):
+        if not self.detector:
+            messagebox.showerror("Error", "Detector not initialized. Please run detection first.")
+            return
+            
         if not self.image_path.get():
             messagebox.showerror("Error", "Please select an image file")
             return
-        self.result = self.image_path.get()
-        self.dialog.destroy()
+            
+        try:
+            # Process image using detector
+            detected_image = self.detector.detect_and_draw(self.image_path.get())
+            
+            if detected_image is not None:
+                # Convert BGR to RGB
+                detected_image_rgb = cv2.cvtColor(detected_image, cv2.COLOR_BGR2RGB)
+                # Convert to PIL Image
+                pil_image = Image.fromarray(detected_image_rgb)
+                
+                # Resize for display
+                display_size = (380, 300)
+                pil_image.thumbnail(display_size, Image.Resampling.LANCZOS)
+                
+                # Convert to PhotoImage and display
+                self.photo_detected = ImageTk.PhotoImage(pil_image)
+                
+                # Center image in canvas
+                x = (380 - self.photo_detected.width()) // 2
+                y = (300 - self.photo_detected.height()) // 2
+                self.detected_canvas.delete("all")
+                self.detected_canvas.create_image(x, y, anchor="nw", image=self.photo_detected)
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to process image: {str(e)}")
 
 class FruitClassification:
     def __init__(self, root):
@@ -154,7 +195,7 @@ class FruitClassification:
         self.results_text = tk.Text(main_frame, height=15, width=70)
         self.results_text.grid(row=4, column=0, columnspan=4, pady=10)
 
-        self.detector = None  # Add this line to store detector instance
+        self.detector = None
 
     def browse_train(self):
         folder_path = filedialog.askdirectory()
@@ -178,8 +219,14 @@ class FruitClassification:
         if not self.train_path.get():
             messagebox.showerror("Error", "Please select training data folder")
             return
-        # Add your training logic here
-        pass
+        try:
+            epoch = int(self.epoch.get())
+            batch_size = int(self.batch_size.get())
+            self.results_text.insert(tk.END, f"\nStarting training with {epoch} epochs and batch size {batch_size}...\n")
+            # Add your training logic here
+            pass
+        except ValueError:
+            messagebox.showerror("Error", "Epoch and batch size must be valid numbers")
 
     def start_detection(self):
         try:
@@ -195,14 +242,21 @@ class FruitClassification:
             self.results_text.insert(tk.END, "\nProcessing training data folder...\n")
             self.root.update()
 
-            detections = self.detector.process_training_folder(save_results=True)
+            # Process images and get results
+            processed_images = self.detector.process_training_folder()
 
-            total_images = len(detections)
-            detected_fruits = sum(len(d['detections']) for d in detections)
-
+            # Display results
             results_text = f"\nDetection Results:\n"
-            results_text += f"- Total images processed: {total_images}\n"
-            results_text += f"- Total fruits detected: {detected_fruits}\n"
+            results_text += f"- Total images processed: {len(processed_images)}\n"
+            results_text += f"- Detection results saved in: {self.detector.output_dir}\n"
+            
+            # Show some example paths
+            if processed_images:
+                results_text += "\nSome processed images:\n"
+                for i, img in enumerate(processed_images[:3]):
+                    results_text += f"- {img['result_path']}\n"
+                if len(processed_images) > 3:
+                    results_text += "...\n"
 
             self.results_text.insert(tk.END, results_text)
             messagebox.showinfo("Success", "Detection process completed successfully!")
@@ -216,16 +270,20 @@ class FruitClassification:
         if not self.test_path.get():
             messagebox.showerror("Error", "Please select test data folder")
             return
-        # Add your database testing logic here
-        pass
+        try:
+            image_count = self.count_images(self.test_path.get())
+            self.results_text.insert(tk.END, f"\nFound {image_count} images in test database\n")
+            # Add your database testing logic here
+            pass
+        except Exception as e:
+            messagebox.showerror("Error", f"Error testing database: {str(e)}")
 
     def test_single_image(self):
-        dialog = ImageTestDialog(self.root)
+        if not self.detector:
+            messagebox.showerror("Error", "Please run detection first")
+            return
+        dialog = ImageTestDialog(self.root, self.detector)
         self.root.wait_window(dialog.dialog)
-        
-        if dialog.result:
-            # Here you can add your image classification logic
-            self.results_text.insert(tk.END, f"\nTesting image: {dialog.result}")
 
     def test_images(self):
         if not self.train_path.get() or not self.test_path.get():
