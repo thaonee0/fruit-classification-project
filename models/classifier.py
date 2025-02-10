@@ -1,15 +1,20 @@
 import torch
 from torch import nn
-from torchvision.models import resnet50, ResNet50_Weights
+from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 
 class FruitClassifier(nn.Module):
     def __init__(self, num_classes):
         super(FruitClassifier, self).__init__()
-        self.resnet = resnet50(weights=ResNet50_Weights.DEFAULT)
-        self.features = nn.Sequential(*list(self.resnet.children())[:-1])
+        self.mobilenet = mobilenet_v2(weights=MobileNet_V2_Weights.DEFAULT)
+        
+        # Lấy phần feature extractor của MobileNetV2
+        self.features = self.mobilenet.features
+        
+        # Tạo classifier thay thế phần cuối của MobileNetV2
         self.classifier = nn.Sequential(
+            nn.AdaptiveAvgPool2d(1),
             nn.Flatten(),
-            nn.Linear(2048, 512),
+            nn.Linear(1280, 512),
             nn.ReLU(),
             nn.Dropout(0.5),
             nn.Linear(512, 128),

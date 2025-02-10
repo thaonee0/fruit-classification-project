@@ -3,6 +3,7 @@ from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 import os
 from models.detector import FruitDetector
+from trained.train_mobilenetv2 import train_model
 import cv2
 import numpy as np
 
@@ -216,18 +217,21 @@ class FruitClassification:
         return image_count
 
     def start_training(self):
-        if not self.train_path.get():
-            messagebox.showerror("Error", "Please select training data folder")
-            return
         try:
-            epoch = int(self.epoch.get())
-            batch_size = int(self.batch_size.get())
-            self.results_text.insert(tk.END, f"\nStarting training with {epoch} epochs and batch size {batch_size}...\n")
-            # Add your training logic here
-            pass
-        except ValueError:
-            messagebox.showerror("Error", "Epoch and batch size must be valid numbers")
+            self.results_text.insert(tk.END, "\nBắt đầu huấn luyện mô hình...\n")
+            self.results_text.update_idletasks()
 
+            # Gọi hàm huấn luyện từ train_mobilenetv2.py
+            train_model()
+
+            self.results_text.insert(tk.END, "\nHuấn luyện hoàn tất!\n")
+            self.results_text.update_idletasks()
+            messagebox.showinfo("Success", "Huấn luyện hoàn tất!")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Lỗi khi huấn luyện: {str(e)}")
+
+        
     def start_detection(self):
         try:
             if not self.train_path.get():
