@@ -7,7 +7,7 @@ import os
 from models.model_tester import FruitQualityPredictor
 
 # ĐƯỜNG DẪN CỐ ĐỊNH
-FOLDER_PATH = r"D:\2025\1.DO AN TOT NGHIEP\fruit-classification-project\Validation"
+FOLDER_PATH = r"D:\fruit-classification-project\Validation"
 
 class FruitQualityGUI:
     def __init__(self, root):

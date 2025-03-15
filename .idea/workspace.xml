@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="45ed3ad5-96e0-466f-b55e-686aa7d5e437" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/gui1.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/init.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mobilenetv2_fruit_classifier.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/classifier.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/detector.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/enhanced_classifier.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/mobilenetv2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/model_tester.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/yolov8n.pt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pretrained/mobilenetv2-c5e733a8.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pretrained/mobilenetv2_0.1-7d1d638a.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pretrained/mobilenetv2_0.25-b61d2159.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pretrained/mobilenetv2_0.35-b2e15951.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pretrained/mobilenetv2_0.5-eaa6f9ad.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pretrained/mobilenetv2_0.75-dace9791.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pretrained/mobilenetv2_1.0-0c6065bc.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pretrained/mobilenetv2_128x128-fd66a69d.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pretrained/mobilenetv2_160x160-64dc7fa1.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pretrained/mobilenetv2_192x192-e423d99e.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pretrained/mobilenetv2_96x96-ff0e83d8.pth" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/trained/train_mobilenetv2.py" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 6
+}]]></component>
+  <component name="ProjectId" id="2uLV8akyJzXeF6RLSJ9bwrOKD1x" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "train",
+    "last_opened_file_path": "D:/face-recognition-project",
+    "settings.editor.selected.configurable": "preferences.lookFeel"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-14705d77f0bb-aa17d162503b-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-243.25659.43" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="45ed3ad5-96e0-466f-b55e-686aa7d5e437" name="Changes" comment="" />
+      <created>1742027682747</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1742027682747</updated>
+    </task>
+    <servers />
+  </component>
+</project>
