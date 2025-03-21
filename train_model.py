@@ -19,7 +19,7 @@ img_size = (224, 224)
 img_shape = (img_size[0], img_size[1], 3)
 batch_size = 8  
 epochs = 30
-ask_epoch = 5  # Epoch đầu tiên sẽ hỏi người dùng
+ask_epoch = 3  # Epoch đầu tiên sẽ hỏi người dùng
 
 def load_data_from_folder(base_dir):
     """

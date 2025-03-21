@@ -82,7 +82,7 @@ def process_dataset(input_dir, output_base_dir):
     return df
 
 if __name__ == "__main__":
-    input_dir = r"D:\fruit-classification-project\DATA\Good Quality_Fruits"
+    input_dir = r"D:\fruit-classification-project\DATA\Mixed Quality_Fruits"
     output_dir = r"D:\fruit-classification-project\CROPPED_DATA"
 
     df = process_dataset(input_dir, output_dir)
